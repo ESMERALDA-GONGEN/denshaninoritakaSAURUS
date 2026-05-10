@@ -1,0 +1,14 @@
+# ローカル・クラウド共通の既定（Community Cloud 側で一部上書きされることがあります）
+
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+primaryColor = "#dc2626"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#fffbeb"
+textColor = "#1e293b"
+font = "sans serif"
