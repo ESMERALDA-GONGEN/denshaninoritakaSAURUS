@@ -30,7 +30,7 @@ DINO = "🦖"
 def _png_pixel_size(data: bytes) -> tuple[int, int]:
     """IHDR を読んで PNG の幅・高さを返す（components.html の高さ用）。"""
     if len(data) < 24 or data[:8] != b"\x89PNG\r\n\x1a\n":
-        return (1080, 2000)
+        return (720, 2200)
     w, h = struct.unpack(">II", data[16:24])
     return (w, h)
 
@@ -380,18 +380,17 @@ def render_album():
         st.session_state.photos,
         st.session_state.feelings,
     )
-    st.success("できあがり！")
+    st.success("できあがり！ すまほ向け **たてなが** アルバムだよ。")
 
-    st.markdown("##### 📷 アイフォンで しゃしんに ほぞんする（おすすめ）")
+    st.markdown("##### 📷 しゃしんに ほぞんする方法")
     st.info(
-        "Webアプリは ふぉるだに **ちょくせつ** は いれられないよ。\n\n"
-        "**下の がぞう を ながおし** → **『しゃしんにほぞん』** または **『ふぁいるにほぞん』** を えらぶ！\n\n"
-        "（おとなと いっしょに やってね）"
+        "**下の がぞう を ながおし** して **『しゃしんにほぞん』** を えらんでね。\n\n"
+        "Webアプリなので これが **いちばんかんたん** だよ。（おとなと いっしょにね）"
     )
 
     pw, ph = _png_pixel_size(png)
     # ふれーむのたかさ（はばは Streamlit がきめるので ちょうせい）
-    frame_h = min(3200, max(400, int(ph * 560 / max(pw, 1)) + 24))
+    frame_h = min(3400, max(420, int(ph * 520 / max(pw, 1)) + 28))
     b64 = base64.b64encode(png).decode("ascii")
     components.html(
         f"""
@@ -404,19 +403,7 @@ def render_album():
         height=frame_h,
         scrolling=True,
     )
-    st.caption("がぞうが きれたら すくろーるしてね。**ながおし**は きいろい わくの **がぞう** にしてね。")
-
-    st.divider()
-    st.markdown("##### 📁 ファイルとして ダウンロード（パソコン・すまほのふぁいる）")
-    st.caption("アイフォンの『だうんろーど』は まず『ふぁいる』アプリにいくことがおおいよ。しゃしんアプリなら うえの『ながおしほぞん』がラク。")
-    st.download_button(
-        label="📥 しゃしんファイル（PNG）をダウンロード",
-        data=png,
-        file_name="denshaninoritaka_album.png",
-        mime="image/png",
-        use_container_width=True,
-        type="secondary",
-    )
+    st.caption("がぞうが きれたら すくろーるしてね。きいろい わくの **がぞう** を ながおし。")
 
     if st.button("🔄 もういちどあたらしい旅", use_container_width=True):
         reset_trip()

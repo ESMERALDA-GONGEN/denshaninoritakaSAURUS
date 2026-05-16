@@ -1,4 +1,4 @@
-"""縦長の旅アルバム画像を生成する。"""
+"""縦長の旅アルバム画像を生成する（スマホで縦スクロール前提の細長いキャンバス）。"""
 
 from __future__ import annotations
 
@@ -59,16 +59,17 @@ def build_album_image(
     route_stations: 今回の旅の路線順の駅リスト
     gotten_off_ids: 降りた駅ID（路線順に並べる）
     """
-    w = 1080
-    pad = 44
-    inner = 22
+    w = 720
+    pad = 28
+    inner = 16
 
-    # 1駅あたり：写真エリア（上）＋ テキスト（下）
-    photo_band_h = 228
-    text_zone_h = 118
+    inner_photo_w = w - 2 * pad - 2 * inner
+    # 写真枠を横より縦長に（縦撮りが画面いっぱいに近づく）
+    photo_band_h = min(680, max(420, int(inner_photo_w * 1.22)))
+    text_zone_h = 128
     block_h = inner * 2 + photo_band_h + text_zone_h
-    gap = 32
-    header_h = 198
+    gap = 24
+    header_h = 172
 
     ordered = [s for s in route_stations if s["id"] in set(gotten_off_ids)]
     id_order = {s["id"]: i for i, s in enumerate(route_stations)}
@@ -87,32 +88,32 @@ def build_album_image(
         b = int(bg_top[2] * (1 - t) + bg_bot[2] * t)
         draw.line([(0, yy), (w, yy)], fill=(r, g, b))
 
-    font_title = _load_font(52)
-    font_tag = _load_font(26)
-    font_sub = _load_font(30)
-    font_name = _load_font(40)
-    font_small = _load_font(30)
-    font_tiny = _load_font(22)
+    font_title = _load_font(40)
+    font_tag = _load_font(22)
+    font_sub = _load_font(26)
+    font_name = _load_font(34)
+    font_small = _load_font(26)
+    font_tiny = _load_font(20)
 
     # --- ヘッダー（影＋帯）絵文字は使わない（□防止） ---
     hx0, hy0, hx1, hy1 = pad, pad, w - pad, header_h
     draw.rounded_rectangle(
-        [hx0 + 5, hy0 + 5, hx1 + 5, hy1 + 5],
-        radius=32,
+        [hx0 + 4, hy0 + 4, hx1 + 4, hy1 + 4],
+        radius=26,
         fill=(203, 213, 225),
     )
     draw.rounded_rectangle(
         [hx0, hy0, hx1, hy1],
-        radius=32,
+        radius=26,
         fill=(255, 255, 255),
         outline=(251, 191, 36),
         width=4,
     )
     cx = w // 2
-    draw.text((cx, 56), TITLE, fill=(15, 23, 42), font=font_title, anchor="mm")
-    draw.text((cx, 108), "とくべつな しんかんせん の きおく", fill=(100, 116, 139), font=font_tag, anchor="mm")
+    draw.text((cx, 48), TITLE, fill=(15, 23, 42), font=font_title, anchor="mm")
+    draw.text((cx, 92), "とくべつな しんかんせん の きおく", fill=(100, 116, 139), font=font_tag, anchor="mm")
     date_s = datetime.now().strftime("%Y年%m月%d日")
-    draw.text((cx, 148), date_s, fill=(148, 163, 184), font=font_sub, anchor="mm")
+    draw.text((cx, 128), date_s, fill=(148, 163, 184), font=font_sub, anchor="mm")
 
     y = header_h + gap
 
@@ -122,13 +123,13 @@ def build_album_image(
 
         # カードのうすい影
         draw.rounded_rectangle(
-            [bx0 + 4, by0 + 4, bx1 + 4, by1 + 4],
-            radius=28,
+            [bx0 + 3, by0 + 3, bx1 + 3, by1 + 3],
+            radius=22,
             fill=(226, 232, 240),
         )
         draw.rounded_rectangle(
             [bx0, by0, bx1, by1],
-            radius=28,
+            radius=22,
             fill=(255, 255, 255),
             outline=(147, 197, 253),
             width=3,
@@ -142,13 +143,13 @@ def build_album_image(
         # 写真レンジ（内側のグレー台）
         draw.rounded_rectangle(
             [px0, py0, px1, py1],
-            radius=22,
+            radius=18,
             fill=(248, 250, 252),
             outline=(226, 232, 240),
             width=2,
         )
 
-        margin = 14
+        margin = 12
         thumb_max = (px1 - px0 - 2 * margin, py1 - py0 - 2 * margin)
 
         raw = photos.get(sid)
@@ -160,7 +161,7 @@ def build_album_image(
                 tw, th = im.size
                 ox = px0 + margin + (thumb_max[0] - tw) // 2
                 oy = py0 + margin + (thumb_max[1] - th) // 2
-                rad = 18
+                rad = 16
                 if tw >= 8 and th >= 8:
                     mask = _rounded_mask((tw, th), rad)
                     img.paste(im, (ox, oy), mask)
@@ -180,15 +181,15 @@ def build_album_image(
             )
 
         # テキストゾーン（中央寄せ）
-        ty_base = py1 + 18
+        ty_base = py1 + 16
         cx_card = (bx0 + bx1) // 2
         station_line = f"★ {st['name']}えき"
-        draw.text((cx_card, ty_base + 8), station_line, fill=(15, 23, 42), font=font_name, anchor="mm")
+        draw.text((cx_card, ty_base + 6), station_line, fill=(15, 23, 42), font=font_name, anchor="mm")
 
         feel_raw = feelings.get(sid, "きろくなし")
         feel = _feeling_plain(feel_raw)
         draw.text(
-            (cx_card, ty_base + 58),
+            (cx_card, ty_base + 52),
             feel,
             fill=(71, 85, 105),
             font=font_small,
