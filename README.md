@@ -19,7 +19,7 @@ python -m streamlit run app.py
    ```powershell
    cd denshaninoritaka
    git init
-   git add app.py album_generator.py tokaido_stations.py requirements.txt README.md .gitignore .streamlit Dockerfile
+   git add app.py album_generator.py tokaido_stations.py requirements.txt packages.txt README.md .gitignore .streamlit Dockerfile
    git commit -m "Initial commit"
    git branch -M main
    git remote add origin https://github.com/<あなたのユーザー名>/<リポジトリ名>.git
@@ -38,6 +38,7 @@ python -m streamlit run app.py
 
 - 秘密情報（API キーなど）は使っていません。将来使う場合は Cloud の **Secrets** に設定します。
 - `requirements.txt` があれば依存関係は自動インストールされます。
+- リポジトリ直下の **`packages.txt`** で Linux に **Noto CJK フォント**を入れています。アルバム PNG の日本語が極小になる問題の対策です（Streamlit Community Cloud が `packages.txt` に対応している前提）。
 
 ## 別の方法（Docker）
 

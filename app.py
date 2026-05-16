@@ -381,7 +381,7 @@ def render_album():
         type="primary",
     )
 
-    st.image(png, caption="プレビュー", use_container_width=True)
+    st.image(png, caption="プレビュー（がめんいっぱいにちいさくみえるよ。ほぞんした PNG をひらくとおおきいよ）", use_container_width=True)
 
     if st.button("🔄 もういちどあたらしい旅", use_container_width=True):
         reset_trip()

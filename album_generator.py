@@ -15,16 +15,20 @@ FONT_CANDIDATES = (
     "C:/Windows/Fonts/msgothic.ttc",
     "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
     "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
+    "/usr/share/fonts/opentype/noto-cjk/NotoSansCJK-Regular.ttc",
+    "/usr/share/fonts/truetype/noto-cjk/NotoSansCJK-Regular.ttc",
     "/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc",
 )
 
 
 def _load_font(size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+    """日本語は TTC が無いと load_default に落ちて極小になる（特に Linux クラウド）。"""
     for path in FONT_CANDIDATES:
         try:
             return ImageFont.truetype(path, size)
         except OSError:
             continue
+    # 最後の手段（環境によっては日本語が潰れる）
     return ImageFont.load_default()
 
 
@@ -39,11 +43,11 @@ def build_album_image(
     route_stations: 今回の旅の路線順の駅リスト
     gotten_off_ids: 降りた駅ID（路線順に並べる）
     """
-    w = 900
-    pad = 36
-    header_h = 155
-    block_h = 310
-    gap = 24
+    w = 1080
+    pad = 40
+    header_h = 170
+    block_h = 340
+    gap = 28
 
     ordered = [s for s in route_stations if s["id"] in set(gotten_off_ids)]
     # 路線図の順序を保持
@@ -63,10 +67,10 @@ def build_album_image(
         b = int(bg_top[2] * (1 - t) + bg_bot[2] * t)
         draw.line([(0, y), (w, y)], fill=(r, g, b))
 
-    font_title = _load_font(50)
-    font_sub = _load_font(28)
-    font_name = _load_font(40)
-    font_small = _load_font(28)
+    font_title = _load_font(56)
+    font_sub = _load_font(32)
+    font_name = _load_font(46)
+    font_small = _load_font(32)
 
     # タイトル帯
     draw.rounded_rectangle(
@@ -76,12 +80,12 @@ def build_album_image(
         outline=(251, 191, 36),
         width=4,
     )
-    draw.text((w // 2, 52), f"🦖 {TITLE}", fill=(30, 58, 95), font=font_title, anchor="mm")
+    draw.text((w // 2, 58), f"🦖 {TITLE}", fill=(30, 58, 95), font=font_title, anchor="mm")
     date_s = datetime.now().strftime("%Y年%m月%d日")
-    draw.text((w // 2, 108), date_s, fill=(100, 116, 139), font=font_sub, anchor="mm")
+    draw.text((w // 2, 118), date_s, fill=(100, 116, 139), font=font_sub, anchor="mm")
 
     y = header_h + gap
-    thumb_size = (260, 200)
+    thumb_size = (320, 240)
 
     for st in ordered:
         sid = st["id"]
@@ -98,7 +102,7 @@ def build_album_image(
         draw.text((tx, ty), f"🦖 {st['name']}駅", fill=(30, 41, 59), font=font_name)
 
         feel = feelings.get(sid, "きろくなし")
-        draw.text((tx, ty + 52), feel, fill=(71, 85, 105), font=font_small)
+        draw.text((tx, ty + 58), feel, fill=(71, 85, 105), font=font_small)
 
         px = w - pad - thumb_size[0] - 24
         py = y + (block_h - thumb_size[1]) // 2
