@@ -41,8 +41,8 @@ def build_album_image(
     """
     w = 900
     pad = 36
-    header_h = 140
-    block_h = 280
+    header_h = 155
+    block_h = 310
     gap = 24
 
     ordered = [s for s in route_stations if s["id"] in set(gotten_off_ids)]
@@ -63,10 +63,10 @@ def build_album_image(
         b = int(bg_top[2] * (1 - t) + bg_bot[2] * t)
         draw.line([(0, y), (w, y)], fill=(r, g, b))
 
-    font_title = _load_font(40)
-    font_sub = _load_font(22)
-    font_name = _load_font(30)
-    font_small = _load_font(20)
+    font_title = _load_font(50)
+    font_sub = _load_font(28)
+    font_name = _load_font(40)
+    font_small = _load_font(28)
 
     # タイトル帯
     draw.rounded_rectangle(
@@ -76,9 +76,9 @@ def build_album_image(
         outline=(251, 191, 36),
         width=4,
     )
-    draw.text((w // 2, 48), f"🦖 {TITLE}", fill=(30, 58, 95), font=font_title, anchor="mm")
+    draw.text((w // 2, 52), f"🦖 {TITLE}", fill=(30, 58, 95), font=font_title, anchor="mm")
     date_s = datetime.now().strftime("%Y年%m月%d日")
-    draw.text((w // 2, 102), date_s, fill=(100, 116, 139), font=font_sub, anchor="mm")
+    draw.text((w // 2, 108), date_s, fill=(100, 116, 139), font=font_sub, anchor="mm")
 
     y = header_h + gap
     thumb_size = (260, 200)
@@ -98,7 +98,7 @@ def build_album_image(
         draw.text((tx, ty), f"🦖 {st['name']}駅", fill=(30, 41, 59), font=font_name)
 
         feel = feelings.get(sid, "きろくなし")
-        draw.text((tx, ty + 44), feel, fill=(71, 85, 105), font=font_small)
+        draw.text((tx, ty + 52), feel, fill=(71, 85, 105), font=font_small)
 
         px = w - pad - thumb_size[0] - 24
         py = y + (block_h - thumb_size[1]) // 2

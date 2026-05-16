@@ -54,6 +54,46 @@ def inject_styles() -> None:
   }
   /* 見出し */
   h1 { font-size: 1.55rem !important; letter-spacing: 0.02em; }
+  /* キャプション全体を少し大きく（子ども向け） */
+  [data-testid="stCaptionContainer"] {
+    font-size: 1.05rem !important;
+  }
+  /* 感想ラジオ：タップしやすく文字も大きく */
+  [data-testid="stRadio"] label,
+  [data-testid="stRadio"] label p,
+  [data-testid="stRadio"] label span {
+    font-size: 1.18rem !important;
+    line-height: 1.5 !important;
+  }
+  [data-testid="stRadio"] div[role="radiogroup"] > label {
+    padding: 0.4rem 0 !important;
+    min-height: 2.6rem !important;
+    align-items: center !important;
+  }
+  /* 写真アップロード：説明文・ボタンを大きく */
+  [data-testid="stFileUploader"] small,
+  [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] p,
+  [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] span {
+    font-size: 1.12rem !important;
+    line-height: 1.45 !important;
+  }
+  [data-testid="stFileUploader"] button {
+    font-size: 1.05rem !important;
+    min-height: 2.5rem !important;
+  }
+  /* アルバム・案内の alert 内テキスト */
+  [data-testid="stAlert"] p,
+  [data-testid="stAlert"] div {
+    font-size: 1.08rem !important;
+    line-height: 1.5 !important;
+  }
+  /* 写真ブロックの見出し（HTML） */
+  .densha-photo-hint {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #334155;
+    margin: 0.35rem 0 0.25rem 0;
+  }
 </style>
         """,
         unsafe_allow_html=True,
@@ -255,14 +295,21 @@ def render_travel():
                         st.image(Image.open(io.BytesIO(thumb)), use_container_width=True)
                     else:
                         st.markdown(
-                            "<div style='text-align:center;padding:12px;background:#f8fafc;border-radius:12px;'>"
-                            "📷 まだない</div>",
+                            "<div style='text-align:center;padding:16px;background:#f8fafc;border-radius:12px;"
+                            "font-size:1.2rem;font-weight:600;color:#64748b;'>📷 まだない</div>",
                             unsafe_allow_html=True,
                         )
                 with row[1]:
-                    st.markdown("**おりたよ！**")
+                    st.markdown(
+                        "<p style='font-size:1.25rem;font-weight:800;margin:0 0 0.35rem 0;'>おりたよ！</p>",
+                        unsafe_allow_html=True,
+                    )
+                    st.markdown(
+                        "<p class='densha-photo-hint'>きょうのきもち（ひとつえらぶ）</p>",
+                        unsafe_allow_html=True,
+                    )
                     feel = st.radio(
-                        "きょうのきもち（ひとつ）",
+                        "きょうのきもち",
                         FEELINGS,
                         key=f"feel_{sid}",
                         horizontal=False,
@@ -271,8 +318,12 @@ def render_travel():
                     )
                     st.session_state.feelings[sid] = feel
 
+                    st.markdown(
+                        "<p class='densha-photo-hint'>📷 しゃしんをいれる（1まい）</p>",
+                        unsafe_allow_html=True,
+                    )
                     up = st.file_uploader(
-                        "しゃしんをいれる（1まい）",
+                        "しゃしん",
                         type=["jpg", "jpeg", "png", "webp"],
                         key=f"up_{sid}",
                         label_visibility="collapsed",
