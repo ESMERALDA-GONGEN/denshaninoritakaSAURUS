@@ -7,6 +7,8 @@ from datetime import datetime
 
 from PIL import Image, ImageDraw, ImageFont
 
+from image_utils import load_image_upright
+
 TITLE = "電車に乗りたかザウルス"
 
 # フォントは環境依存のため、失敗時はデフォルトフォントにフォールバック
@@ -153,7 +155,7 @@ def build_album_image(
         pasted = False
         if raw:
             try:
-                im = Image.open(io.BytesIO(raw)).convert("RGB")
+                im = load_image_upright(raw)
                 im.thumbnail(thumb_max, Image.Resampling.LANCZOS)
                 tw, th = im.size
                 ox = px0 + margin + (thumb_max[0] - tw) // 2

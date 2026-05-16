@@ -4,12 +4,10 @@
 
 from __future__ import annotations
 
-import io
-
 import streamlit as st
-from PIL import Image
 
 from album_generator import build_album_image
+from image_utils import load_image_upright
 from tokaido_stations import TOKAIDO_STATIONS, route_between
 
 FEELINGS = [
@@ -292,7 +290,7 @@ def render_travel():
                     )
                     thumb = st.session_state.photos.get(sid)
                     if thumb:
-                        st.image(Image.open(io.BytesIO(thumb)), use_container_width=True)
+                        st.image(load_image_upright(thumb), use_container_width=True)
                     else:
                         st.markdown(
                             "<div style='text-align:center;padding:16px;background:#f8fafc;border-radius:12px;"
