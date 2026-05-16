@@ -4,7 +4,11 @@
 
 from __future__ import annotations
 
+import base64
+import struct
+
 import streamlit as st
+import streamlit.components.v1 as components
 
 from album_generator import build_album_image
 from image_utils import load_image_upright
@@ -21,6 +25,14 @@ FEELINGS = [
 
 APP_TITLE = "電車に乗りたかザウルス"
 DINO = "🦖"
+
+
+def _png_pixel_size(data: bytes) -> tuple[int, int]:
+    """IHDR を読んで PNG の幅・高さを返す（components.html の高さ用）。"""
+    if len(data) < 24 or data[:8] != b"\x89PNG\r\n\x1a\n":
+        return (1080, 2000)
+    w, h = struct.unpack(">II", data[16:24])
+    return (w, h)
 
 
 def inject_styles() -> None:
@@ -368,18 +380,43 @@ def render_album():
         st.session_state.photos,
         st.session_state.feelings,
     )
-    st.success("できあがり！おとなとしゃしんをほぞんしよう 📷")
+    st.success("できあがり！")
 
+    st.markdown("##### 📷 アイフォンで しゃしんに ほぞんする（おすすめ）")
+    st.info(
+        "Webアプリは ふぉるだに **ちょくせつ** は いれられないよ。\n\n"
+        "**下の がぞう を ながおし** → **『しゃしんにほぞん』** または **『ふぁいるにほぞん』** を えらぶ！\n\n"
+        "（おとなと いっしょに やってね）"
+    )
+
+    pw, ph = _png_pixel_size(png)
+    # ふれーむのたかさ（はばは Streamlit がきめるので ちょうせい）
+    frame_h = min(3200, max(400, int(ph * 560 / max(pw, 1)) + 24))
+    b64 = base64.b64encode(png).decode("ascii")
+    components.html(
+        f"""
+<div style="margin:0;padding:0;background:#f8fafc;text-align:center;">
+  <img src="data:image/png;base64,{b64}" alt="旅のアルバム"
+    style="width:100%;max-width:100%;height:auto;display:block;border-radius:16px;
+    border:4px solid #fcd34d;box-shadow:0 4px 16px rgba(0,0,0,0.08);"/>
+</div>
+        """,
+        height=frame_h,
+        scrolling=True,
+    )
+    st.caption("がぞうが きれたら すくろーるしてね。**ながおし**は きいろい わくの **がぞう** にしてね。")
+
+    st.divider()
+    st.markdown("##### 📁 ファイルとして ダウンロード（パソコン・すまほのふぁいる）")
+    st.caption("アイフォンの『だうんろーど』は まず『ふぁいる』アプリにいくことがおおいよ。しゃしんアプリなら うえの『ながおしほぞん』がラク。")
     st.download_button(
-        label="📥 アルバム画像をほぞん（PNG）",
+        label="📥 しゃしんファイル（PNG）をダウンロード",
         data=png,
         file_name="denshaninoritaka_album.png",
         mime="image/png",
         use_container_width=True,
-        type="primary",
+        type="secondary",
     )
-
-    st.image(png, caption="プレビュー（がめんいっぱいにちいさくみえるよ。ほぞんした PNG をひらくとおおきいよ）", use_container_width=True)
 
     if st.button("🔄 もういちどあたらしい旅", use_container_width=True):
         reset_trip()
