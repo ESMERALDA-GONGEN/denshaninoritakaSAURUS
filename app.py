@@ -27,6 +27,42 @@ APP_TITLE = "電車に乗りたかザウルス"
 DINO = "🦖"
 
 
+def _scroll_streamlit_main_to_top() -> None:
+    """画面遷移後もブラウザがスクロール位置を維持することがあるので、親ドキュメントを先頭へ。"""
+    components.html(
+        """
+<script>
+(function () {
+  function go() {
+    try {
+      var w = window.parent;
+      if (!w || !w.document) return;
+      var d = w.document;
+      var selectors = [
+        "[data-testid='stAppViewContainer']",
+        "[data-testid='stMain']",
+        "section.main",
+        ".main"
+      ];
+      selectors.forEach(function (sel) {
+        var el = d.querySelector(sel);
+        if (el) el.scrollTop = 0;
+      });
+      d.documentElement.scrollTop = 0;
+      d.body.scrollTop = 0;
+      w.scrollTo(0, 0);
+    } catch (e) {}
+  }
+  go();
+  setTimeout(go, 50);
+  setTimeout(go, 200);
+})();
+</script>
+""",
+        height=0,
+    )
+
+
 def _png_pixel_size(data: bytes) -> tuple[int, int]:
     """IHDR を読んで PNG の幅・高さを返す（components.html の高さ用）。"""
     if len(data) < 24 or data[:8] != b"\x89PNG\r\n\x1a\n":
@@ -119,6 +155,7 @@ def init_state() -> None:
         "feelings": {},  # station_id -> str
         "photos": {},  # station_id -> bytes
         "goal_celebrated": False,
+        "album_scroll_to_top": False,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -131,6 +168,7 @@ def reset_trip() -> None:
     st.session_state.feelings = {}
     st.session_state.photos = {}
     st.session_state.goal_celebrated = False
+    st.session_state.album_scroll_to_top = False
 
 
 def render_header():
@@ -353,6 +391,7 @@ def render_travel():
     with ec1:
         if st.button("📒 旅を終える（アルバムへ）", use_container_width=True, type="primary"):
             st.session_state.phase = "album"
+            st.session_state.album_scroll_to_top = True
             st.rerun()
     with ec2:
         if st.button("🏠 ホームへ", use_container_width=True):
@@ -361,6 +400,10 @@ def render_travel():
 
 
 def render_album():
+    if st.session_state.get("album_scroll_to_top"):
+        st.session_state.album_scroll_to_top = False
+        _scroll_streamlit_main_to_top()
+
     render_header()
     st.markdown("##### ③ 旅のアルバムをつくる")
 
